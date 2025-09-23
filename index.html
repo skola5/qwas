@@ -120,6 +120,14 @@
             background: #000;
             border: 1px solid var(--text-color);
         }
+        #spectrum {
+            width: 100%;
+            max-width: 800px;
+            height: 200px;
+            background: #000;
+            border: 1px solid var(--text-color);
+            margin-top: 20px;
+        }
         pre {
             background: #000;
             color: #0f0;
@@ -159,7 +167,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        #themeToggle, #soundToggle, #fullscreenBtn, #randomColorBtn {
+        #themeToggle, #soundToggle, #fullscreenBtn, #randomColorBtn, #particleToggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -172,6 +180,7 @@
         #soundToggle { right: 120px; }
         #fullscreenBtn { right: 220px; }
         #randomColorBtn { right: 320px; }
+        #particleToggle { right: 420px; }
         #cookieConsent {
             position: fixed;
             bottom: 0;
@@ -245,6 +254,33 @@
             gap: 10px;
             margin-top: 20px;
         }
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        #echoCalculator {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #visualEffects {
+            text-align: center;
+        }
+        .glow {
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px var(--accent-color); }
+            to { text-shadow: 0 0 20px var(--accent-color); }
+        }
         @media (max-width: 768px) {
             nav ul { flex-direction: column; gap: 10px; }
             section { padding: 10px; }
@@ -253,6 +289,7 @@
     </style>
 </head>
 <body>
+    <canvas id="particleCanvas" width="800" height="600"></canvas> <!-- New: Background particles -->
     <header>
         <h1>Echoes Hub: Ultimate Interactive Audio Echo Exploration</h1>
         <nav>
@@ -263,6 +300,8 @@
                 <li><a href="#tutorials">Programming Tutorials</a></li>
                 <li><a href="#quiz">Echo Quiz</a></li>
                 <li><a href="#randomFacts">Random Facts</a></li>
+                <li><a href="#calculator">Echo Calculator</a></li> <!-- New section -->
+                <li><a href="#visuals">Visual Effects</a></li> <!-- New section -->
                 <li><a href="#blog">Blog</a></li>
                 <li><a href="#contact">Contact</a></li>
                 <li><a href="#about">About</a></li>
@@ -271,7 +310,7 @@
     </header>
 
     <section id="hero">
-        <h2>Explore Echoes with Tons of Features!</h2>
+        <h2 class="glow">Explore Echoes with Tons of Features!</h2> <!-- Added glow animation -->
         <p>Dive deep into audio echoes with advanced interactions, synthesizers, quizzes, random facts, and more high-tech fun. No horizontal scrolling here!</p>
         <button onclick="document.getElementById('demo').scrollIntoView({behavior: 'smooth'})">Try the Demo</button>
     </section>
@@ -286,6 +325,7 @@
         <p>Adjust parameters, play generated sounds, record voice, and visualize waveforms in real-time!</p>
         <div id="demoContainer">
             <canvas id="waveform" width="800" height="200" aria-label="Audio Waveform Visualizer"></canvas>
+            <canvas id="spectrum" width="800" height="200" aria-label="Audio Spectrum Analyzer"></canvas> <!-- New: Spectrum visualizer -->
             <div id="audioControls">
                 <div class="control-group">
                     <label for="delay">Delay (ms): <span id="delayValue">500</span></label>
@@ -299,6 +339,10 @@
                     <label for="wet">Wet Mix (%): <span id="wetValue">50</span></label>
                     <input type="range" id="wet" min="0" max="100" value="50">
                 </div>
+                <div class="control-group">
+                    <label for="filterFreq">Lowpass Filter (Hz): <span id="filterFreqValue">2000</span></label> <!-- New control -->
+                    <input type="range" id="filterFreq" min="20" max="20000" value="2000">
+                </div>
                 <button id="playSample">Play Sample Tone</button>
                 <button id="playRandom">Play Random Sound</button>
                 <button id="recordVoice">Record Voice (5s)</button>
@@ -306,6 +350,7 @@
                 <button id="applyEcho">Play with Echo</button>
                 <button id="saveSettings">Save Settings</button>
                 <button id="loadSettings">Load Settings</button>
+                <button id="exportAudio">Export Audio</button> <!-- New feature -->
             </div>
         </div>
         <div class="share-buttons">
@@ -328,6 +373,8 @@
                 <option value="sawtooth">Sawtooth</option>
                 <option value="triangle">Triangle</option>
             </select>
+            <label for="duration">Duration (s): <span id="durationValue">2</span></label> <!-- New control -->
+            <input type="range" id="duration" min="1" max="10" value="2">
             <button id="playSynth">Play Synth</button>
         </div>
     </section>
@@ -335,7 +382,6 @@
     <section id="tutorials">
         <h2>Programming Tutorials & Features</h2>
         <p>More examples and an enhanced code editor with export!</p>
-        <!-- Existing code examples -->
         <h3>JavaScript (Web Audio API)</h3>
         <pre><code>// Example: Simple Echo Effect
 const audioCtx = new AudioContext();
@@ -345,7 +391,6 @@ feedback.gain.value = 0.5;
 delayNode.connect(feedback);
 feedback.connect(delayNode);
 // Connect to source and destination</code></pre>
-        <!-- More examples -->
         <h3>Rust (Simple Delay)</h3>
         <pre><code>fn apply_echo(input: &Vec&lt;f32&gt;, delay: usize, feedback: f32) -> Vec&lt;f32&gt; {
     let mut output = input.clone();
@@ -354,11 +399,21 @@ feedback.connect(delayNode);
     }
     output
 }</code></pre>
+        <h3>Go (Echo Simulation)</h3> <!-- New example -->
+        <pre><code>func applyEcho(input []float32, delay int, feedback float32) []float32 {
+    output := make([]float32, len(input))
+    copy(output, input)
+    for i := delay; i < len(input); i++ {
+        output[i] += feedback * output[i - delay]
+    }
+    return output
+}</code></pre>
         <h3>Interactive Code Editor (JS)</h3>
         <textarea id="codeEditor">// Write JS code here
 console.log('Hello Echoes!');</textarea>
         <button onclick="runUserCode()">Run Code</button>
         <button onclick="exportCode()">Export Code</button>
+        <button onclick="clearEditor()">Clear Editor</button> <!-- New button -->
         <div id="codeOutput"></div>
     </section>
 
@@ -378,6 +433,12 @@ console.log('Hello Echoes!');</textarea>
                 <label><input type="radio" name="q2" value="b"> Compression</label><br>
                 <label><input type="radio" name="q2" value="c"> Equalization</label>
             </div>
+            <div class="quiz-question">
+                <p>3. What is the speed of sound in air?</p> <!-- New question -->
+                <label><input type="radio" name="q3" value="a"> 343 m/s</label><br>
+                <label><input type="radio" name="q3" value="b"> 1000 m/s</label><br>
+                <label><input type="radio" name="q3" value="c"> 3e8 m/s</label>
+            </div>
             <button onclick="submitQuiz()">Submit Quiz</button>
         </div>
         <div id="quizResult"></div>
@@ -393,9 +454,71 @@ console.log('Hello Echoes!');</textarea>
         <button id="randomColorBtn" onclick="randomizeColors()">Randomize Colors</button>
         <p>And a random number generator: <span id="randomNum"></span></p>
         <button onclick="generateRandomNum()">Generate Random Number</button>
+        <p>Random Echo Joke: <span id="randomJoke"></span></p> <!-- New -->
+        <button onclick="generateRandomJoke()">Get Random Joke</button>
     </section>
 
-    <!-- Blog, Contact, About sections remain the same -->
+    <section id="calculator"> <!-- New section: Echo Calculator -->
+        <h2>Echo Delay Calculator</h2>
+        <p>Calculate echo delay based on distance and speed of sound.</p>
+        <div id="echoCalculator">
+            <label for="distance">Distance to Surface (m):</label>
+            <input type="number" id="distance" value="100">
+            <label for="speed">Speed of Sound (m/s):</label>
+            <input type="number" id="speed" value="343">
+            <button onclick="calculateEcho()">Calculate</button>
+            <p id="calcResult"></p>
+        </div>
+    </section>
+
+    <section id="visuals"> <!-- New section: Visual Effects -->
+        <h2>Visual Effects Gallery</h2>
+        <p>Enjoy some echo-inspired visual effects!</p>
+        <div id="visualEffects">
+            <button onclick="triggerRipple()">Trigger Ripple Effect</button>
+            <canvas id="rippleCanvas" width="400" height="200" style="border:1px solid var(--text-color); margin-top:20px;"></canvas>
+            <p>Or toggle background particles:</p>
+            <button id="particleToggle" onclick="toggleParticles()">Particles: Off</button>
+        </div>
+    </section>
+
+    <section id="blog">
+        <h2>Blog Posts on Echoes</h2>
+        <article>
+            <h3>The Science of Echoes in Digital Audio</h3>
+            <p>Explore how delays and feedback create realistic echoes using DSP techniques.</p>
+            <small>Posted on September 23, 2025</small>
+        </article>
+        <article>
+            <h3>Building Echo Effects in Web Apps</h3>
+            <p>Tutorial on using Web Audio API for high-tech interactive sound processing.</p>
+            <small>Posted on September 15, 2025</small>
+        </article>
+        <article>
+            <h3>Advanced Programming: Convolutional Reverb for Echoes</h3>
+            <p>Dive into impulse responses for simulating real-world echoes.</p>
+            <small>Posted on September 1, 2025</small>
+        </article>
+    </section>
+
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <form id="contactForm" onsubmit="submitContact(event)">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <label for="message">Message:</label>
+            <textarea id="message" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+        <div id="formResponse"></div>
+    </section>
+
+    <section id="about">
+        <h2>About Echoes Hub</h2>
+        <p>This high-tech platform explores audio echoes with interactive tools, real-time processing, code editors, and educational content. Built with Web Audio API, canvas visualization, and pure JS for dynamic experiences.</p>
+    </section>
 
     <footer>
         <p>&copy; 2025 Echoes Hub. All rights reserved.</p>
@@ -428,6 +551,10 @@ console.log('Hello Echoes!');</textarea>
         let recorder;
         let recordedChunks = [];
         let soundEnabled = true;
+        let filterNode = audioCtx.createBiquadFilter(); // New: Lowpass filter
+        filterNode.type = 'lowpass';
+        filterNode.frequency.value = 2000;
+        filterNode.connect(audioCtx.destination);
 
         delayNode.delayTime.value = 0.5;
         feedbackNode.gain.value = 0.5;
@@ -436,16 +563,19 @@ console.log('Hello Echoes!');</textarea>
         feedbackNode.connect(delayNode);
         delayNode.connect(feedbackNode);
         delayNode.connect(wetNode);
-        wetNode.connect(audioCtx.destination);
-        dryNode.connect(audioCtx.destination);
-        analyser.connect(audioCtx.destination);
+        wetNode.connect(filterNode); // Connect to filter
+        dryNode.connect(filterNode);
+        analyser.connect(filterNode);
 
         analyser.fftSize = 2048;
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
+        const freqData = new Uint8Array(bufferLength);
 
         const waveformCanvas = document.getElementById('waveform');
         const waveformCtx = waveformCanvas.getContext('2d');
+        const spectrumCanvas = document.getElementById('spectrum');
+        const spectrumCtx = spectrumCanvas.getContext('2d');
 
         function drawWaveform() {
             requestAnimationFrame(drawWaveform);
@@ -466,64 +596,64 @@ console.log('Hello Echoes!');</textarea>
             }
             waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
             waveformCtx.stroke();
+
+            // Draw spectrum
+            analyser.getByteFrequencyData(freqData);
+            spectrumCtx.fillStyle = '#000';
+            spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+            const barWidth = (spectrumCanvas.width / bufferLength) * 2.5;
+            x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = freqData[i];
+                spectrumCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+                spectrumCtx.fillRect(x, spectrumCanvas.height - barHeight / 2, barWidth, barHeight / 2);
+                x += barWidth + 1;
+            }
         }
         drawWaveform();
 
-        // Sliders (same)
+        // Sliders update (existing)
+        document.getElementById('delay').addEventListener('input', e => {
+            delayNode.delayTime.value = e.target.value / 1000;
+            document.getElementById('delayValue').textContent = e.target.value;
+        });
+        document.getElementById('feedback').addEventListener('input', e => {
+            feedbackNode.gain.value = e.target.value / 100;
+            document.getElementById('feedbackValue').textContent = e.target.value;
+        });
+        document.getElementById('wet').addEventListener('input', e => {
+            wetNode.gain.value = e.target.value / 100;
+            dryNode.gain.value = 1 - (e.target.value / 100);
+            document.getElementById('wetValue').textContent = e.target.value;
+        });
+        document.getElementById('filterFreq').addEventListener('input', e => { // New slider
+            filterNode.frequency.value = e.target.value;
+            document.getElementById('filterFreqValue').textContent = e.target.value;
+        });
 
-        // Play sample tone
-        document.getElementById('playSample').addEventListener('click', () => {
+        // Play sample, random, record, apply (existing)
+
+        // Export audio (new)
+        let audioRecorder;
+        document.getElementById('exportAudio').addEventListener('click', () => {
             if (soundEnabled) {
-                sourceNode = audioCtx.createOscillator();
-                sourceNode.type = 'sine';
-                sourceNode.frequency.value = 440;
-                sourceNode.connect(dryNode);
-                sourceNode.connect(delayNode);
-                sourceNode.connect(analyser);
-                sourceNode.start();
-                setTimeout(() => sourceNode.stop(), 2000);
+                audioRecorder = new MediaRecorder(audioCtx.destination.stream);
+                audioRecorder.start();
+                setTimeout(() => {
+                    audioRecorder.stop();
+                }, 5000); // Record 5s
+                audioRecorder.ondataavailable = e => {
+                    const url = URL.createObjectURL(e.data);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'echo_audio.webm';
+                    a.click();
+                };
             }
         });
 
-        // Play random sound
-        document.getElementById('playRandom').addEventListener('click', () => {
-            if (soundEnabled) {
-                sourceNode = audioCtx.createOscillator();
-                sourceNode.type = ['sine', 'square', 'sawtooth', 'triangle'][Math.floor(Math.random() * 4)];
-                sourceNode.frequency.value = Math.random() * 1000 + 100;
-                sourceNode.connect(dryNode);
-                sourceNode.connect(delayNode);
-                sourceNode.connect(analyser);
-                sourceNode.start();
-                setTimeout(() => sourceNode.stop(), 1500);
-            }
-        });
-
-        // Record and apply (same)
-
-        // Save/load settings
-        document.getElementById('saveSettings').addEventListener('click', () => {
-            localStorage.setItem('echoDelay', delayNode.delayTime.value);
-            localStorage.setItem('echoFeedback', feedbackNode.gain.value);
-            localStorage.setItem('echoWet', wetNode.gain.value);
-            alert('Settings saved!');
-        });
-        document.getElementById('loadSettings').addEventListener('click', () => {
-            delayNode.delayTime.value = localStorage.getItem('echoDelay') || 0.5;
-            feedbackNode.gain.value = localStorage.getItem('echoFeedback') || 0.5;
-            wetNode.gain.value = localStorage.getItem('echoWet') || 0.5;
-            dryNode.gain.value = 1 - wetNode.gain.value;
-            document.getElementById('delay').value = delayNode.delayTime.value * 1000;
-            document.getElementById('feedback').value = feedbackNode.gain.value * 100;
-            document.getElementById('wet').value = wetNode.gain.value * 100;
-            document.getElementById('delayValue').textContent = document.getElementById('delay').value;
-            document.getElementById('feedbackValue').textContent = document.getElementById('feedback').value;
-            document.getElementById('wetValue').textContent = document.getElementById('wet').value;
-            alert('Settings loaded!');
-        });
-
-        // Synth
-        document.getElementById('freq').addEventListener('input', e => document.getElementById('freqValue').textContent = e.target.value);
+        // Synth duration (new)
+        document.getElementById('duration').addEventListener('input', e => document.getElementById('durationValue').textContent = e.target.value);
         document.getElementById('playSynth').addEventListener('click', () => {
             if (soundEnabled) {
                 sourceNode = audioCtx.createOscillator();
@@ -533,30 +663,26 @@ console.log('Hello Echoes!');</textarea>
                 sourceNode.connect(delayNode);
                 sourceNode.connect(analyser);
                 sourceNode.start();
-                setTimeout(() => sourceNode.stop(), 2000);
+                setTimeout(() => sourceNode.stop(), document.getElementById('duration').value * 1000);
             }
         });
 
-        // Code editor (same)
-        function exportCode() {
-            const code = document.getElementById('codeEditor').value;
-            const blob = new Blob([code], { type: 'text/javascript' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'user_code.js';
-            a.click();
+        // Code editor clear (new)
+        function clearEditor() {
+            document.getElementById('codeEditor').value = '';
+            document.getElementById('codeOutput').innerText = '';
         }
 
-        // Quiz
+        // Quiz updated with new question
         function submitQuiz() {
             let score = 0;
             if (document.querySelector('input[name="q1"]:checked')?.value === 'a') score++;
             if (document.querySelector('input[name="q2"]:checked')?.value === 'a') score++;
-            document.getElementById('quizResult').innerText = `You scored ${score}/2!`;
+            if (document.querySelector('input[name="q3"]:checked')?.value === 'a') score++;
+            document.getElementById('quizResult').innerText = `You scored ${score}/3!`;
         }
 
-        // Random facts
+        // Random facts (existing)
         const facts = [
             'Echoes occur when sound waves bounce off surfaces.',
             'The speed of sound is about 343 m/s in air.',
@@ -570,18 +696,115 @@ console.log('Hello Echoes!');</textarea>
             document.getElementById('factDisplay').innerText = fact;
         }
 
-        // Random stuff
-        function randomizeColors() {
-            document.documentElement.style.setProperty('--accent-color', `#${Math.floor(Math.random()*16777215).toString(16)}`);
-            document.documentElement.style.setProperty('--highlight-color', `#${Math.floor(Math.random()*16777215).toString(16)}`);
+        // Random joke (new)
+        const jokes = [
+            'Why did the echo go to school? To improve its reflection!',
+            'What did the echo say to the sound? "You sound familiar!"',
+            'Echoes are just sounds that are late to the party.'
+        ];
+        function generateRandomJoke() {
+            const joke = jokes[Math.floor(Math.random() * jokes.length)];
+            document.getElementById('randomJoke').innerText = joke;
         }
-        function generateRandomNum() {
-            document.getElementById('randomNum').innerText = Math.random();
+
+        // Random stuff (existing)
+
+        // Echo calculator (new)
+        function calculateEcho() {
+            const distance = parseFloat(document.getElementById('distance').value);
+            const speed = parseFloat(document.getElementById('speed').value);
+            const delay = (2 * distance) / speed * 1000; // Round trip in ms
+            document.getElementById('calcResult').innerText = `Echo Delay: ${delay.toFixed(2)} ms`;
         }
+
+        // Visual effects: Ripple (new)
+        const rippleCanvas = document.getElementById('rippleCanvas');
+        const rippleCtx = rippleCanvas.getContext('2d');
+        let rippleRadius = 0;
+        function drawRipple() {
+            rippleCtx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
+            rippleCtx.beginPath();
+            rippleCtx.arc(200, 100, rippleRadius, 0, 2 * Math.PI);
+            rippleCtx.strokeStyle = var(--accent-color);
+            rippleCtx.stroke();
+            if (rippleRadius < 100) {
+                rippleRadius += 2;
+                requestAnimationFrame(drawRipple);
+            } else {
+                rippleRadius = 0;
+            }
+        }
+        function triggerRipple() {
+            rippleRadius = 0;
+            drawRipple();
+        }
+
+        // Background particles (new)
+        const particleCanvas = document.getElementById('particleCanvas');
+        const particleCtx = particleCanvas.getContext('2d');
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+        let particles = [];
+        let particlesEnabled = false;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * particleCanvas.width;
+                this.y = Math.random() * particleCanvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > particleCanvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > particleCanvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+            draw() {
+                particleCtx.fillStyle = var(--accent-color);
+                particleCtx.beginPath();
+                particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                particleCtx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            if (particlesEnabled) {
+                particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animateParticles);
+            }
+        }
+
+        function toggleParticles() {
+            particlesEnabled = !particlesEnabled;
+            document.getElementById('particleToggle').innerText = `Particles: ${particlesEnabled ? 'On' : 'Off'}`;
+            if (particlesEnabled) {
+                initParticles();
+                animateParticles();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+            initParticles();
+        });
 
         // Other functions (theme, sound, fullscreen, etc.) remain the same
 
-        setTimeout(() => showModal('Welcome!', 'Now with more features, quizzes, random stuff, and no horizontal scroll!'), 2000);
+        setTimeout(() => showModal('Welcome!', 'Now with more visual effects, features like spectrum analyzer, ripple effects, particles, and extended quizzes/tools!'), 2000);
     </script>
 </body>
 </html>
