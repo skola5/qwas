@@ -3,84 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Pixel Game</title>
+    <title>Advanced Pixel Adventure Game</title>
     <style>
-        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; }
-        canvas { border: 1px solid #fff; image-rendering: pixelated; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            background: #222;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        nav {
+            margin: 10px 0;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            color: #ff0;
+        }
+        #gameContainer {
+            position: relative;
+            margin: 20px 0;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background: #000;
+            image-rendering: pixelated;
+            max-width: 100%;
+        }
+        #scoreBoard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        #instructions {
+            max-width: 800px;
+            margin: 20px;
+            text-align: center;
+        }
+        footer {
+            width: 100%;
+            background: #222;
+            padding: 10px;
+            text-align: center;
+            margin-top: auto;
+        }
+        @media (max-width: 600px) {
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="320" height="240"></canvas>
+    <header>
+        <h1>Advanced Pixel Adventure</h1>
+        <nav>
+            <a href="#game">Play Game</a>
+            <a href="#instructions">Instructions</a>
+            <a href="#about">About</a>
+        </nav>
+    </header>
+
+    <section id="game">
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="640" height="480"></canvas>
+            <div id="scoreBoard">Score: 0 | Lives: 3</div>
+        </div>
+    </section>
+
+    <section id="instructions">
+        <h2>Instructions</h2>
+        <p>Use arrow keys to move the player. Jump with Space. Collect coins (yellow pixels) while avoiding enemies (blue pixels). Reach the goal (green pixel) to win!</p>
+        <p>This game features gravity, jumping, enemies with AI, scoring, lives, and responsive design for mobile.</p>
+    </section>
+
+    <section id="about">
+        <h2>About</h2>
+        <p>This is an advanced pixel game built entirely in HTML5 Canvas and JavaScript. No external libraries or images used. Hosted on GitHub Pages.</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Pixel Games. All rights reserved. | <a href="#top" style="color: #fff;">Back to Top</a></p>
+    </footer>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const pixelSize = 10; // Storlek på varje "pixel"
-        let playerX = 16; // Startposition (i pixel-enheter)
-        let playerY = 12;
-        let dx = 0; // Rörelseriktning
-        let dy = 0;
+        const pixelSize = 10;
+        const gravity = 0.5;
+        const jumpPower = -8;
 
-        // Rita spelaren som en röd kvadrat
-        function drawPlayer() {
-            ctx.fillStyle = '#ff0000';
-            ctx.fillRect(playerX * pixelSize, playerY * pixelSize, pixelSize, pixelSize);
+        // Player properties
+        let player = {
+            x: 5,
+            y: 40,
+            vx: 0,
+            vy: 0,
+            width: 1,
+            height: 1,
+            onGround: false,
+            lives: 3
+        };
+
+        // Enemies
+        let enemies = [
+            { x: 20, y: 40, vx: 0.5, width: 1, height: 1 },
+            { x: 40, y: 40, vx: -0.5, width: 1, height: 1 }
+        ];
+
+        // Coins
+        let coins = [
+            { x: 10, y: 30 },
+            { x: 25, y: 20 },
+            { x: 50, y: 35 }
+        ];
+
+        // Goal
+        let goal = { x: 60, y: 40 };
+
+        let score = 0;
+        let keys = {};
+        let gameOver = false;
+
+        // Platforms (map)
+        const platforms = [
+            { x: 0, y: 47, width: 64, height: 1 }, // Floor
+            { x: 0, y: 0, width: 64, height: 1 }, // Ceiling
+            { x: 0, y: 0, width: 1, height: 48 }, // Left wall
+            { x: 63, y: 0, width: 1, height: 48 }, // Right wall
+            { x: 15, y: 35, width: 10, height: 1 }, // Platform 1
+            { x: 30, y: 25, width: 10, height: 1 }, // Platform 2
+            { x: 45, y: 40, width: 10, height: 1 }  // Platform 3
+        ];
+
+        function drawPixel(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
         }
 
-        // Rita en enkel bana med väggar
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * pixelSize, y * pixelSize, w * pixelSize, h * pixelSize);
+        }
+
         function drawMap() {
-            ctx.fillStyle = '#00ff00';
-            // Golvet
-            for (let i = 0; i < 32; i++) {
-                ctx.fillRect(i * pixelSize, 23 * pixelSize, pixelSize, pixelSize);
+            // Draw platforms
+            platforms.forEach(p => drawRect(p.x, p.y, p.width, p.height, '#00ff00'));
+        }
+
+        function drawPlayer() {
+            drawPixel(player.x, player.y, '#ff0000');
+        }
+
+        function drawEnemies() {
+            enemies.forEach(e => drawPixel(e.x, e.y, '#0000ff'));
+        }
+
+        function drawCoins() {
+            coins.forEach(c => drawPixel(c.x, c.y, '#ffff00'));
+        }
+
+        function drawGoal() {
+            drawPixel(goal.x, goal.y, '#00ffff');
+        }
+
+        function updatePlayer() {
+            player.vy += gravity;
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Collision with platforms
+            player.onGround = false;
+            platforms.forEach(p => {
+                if (player.x + player.width > p.x && player.x < p.x + p.width &&
+                    player.y + player.height > p.y && player.y < p.y + p.height) {
+                    if (player.vy > 0 && player.y + player.height <= p.y + player.vy) {
+                        player.y = p.y - player.height;
+                        player.vy = 0;
+                        player.onGround = true;
+                    } else if (player.vy < 0 && player.y >= p.y + p.height - player.vy) {
+                        player.y = p.y + p.height;
+                        player.vy = 0;
+                    } else if (player.vx > 0 && player.x + player.width <= p.x + player.vx) {
+                        player.x = p.x - player.width;
+                        player.vx = 0;
+                    } else if (player.vx < 0 && player.x >= p.x + p.width - player.vx) {
+                        player.x = p.x + p.width;
+                        player.vx = 0;
+                    }
+                }
+            });
+
+            // Controls
+            player.vx = 0;
+            if (keys['ArrowLeft']) player.vx = -1;
+            if (keys['ArrowRight']) player.vx = 1;
+            if (keys[' '] && player.onGround) {
+                player.vy = jumpPower;
+                player.onGround = false;
             }
-            // Väggar
-            ctx.fillStyle = '#0000ff';
-            ctx.fillRect(0, 0, canvas.width, pixelSize); // Topp
-            ctx.fillRect(0, canvas.height - pixelSize, canvas.width, pixelSize); // Botten
-            ctx.fillRect(0, 0, pixelSize, canvas.height); // Vänster
-            ctx.fillRect(canvas.width - pixelSize, 0, pixelSize, canvas.height); // Höger
+
+            // Boundaries
+            if (player.x < 1) player.x = 1;
+            if (player.x > 62) player.x = 62;
+            if (player.y < 1) player.y = 1;
+            if (player.y > 46) player.y = 46;
         }
 
-        // Uppdatera spel
-        function update() {
-            playerX += dx;
-            playerY += dy;
+        function updateEnemies() {
+            enemies.forEach(e => {
+                e.x += e.vx;
+                // Simple AI: bounce on walls
+                if (e.x <= 1 || e.x >= 62) e.vx = -e.vx;
 
-            // Kollisionskontroll (håll inom skärmen)
-            if (playerX < 1) playerX = 1;
-            if (playerX > 30) playerX = 30;
-            if (playerY < 1) playerY = 1;
-            if (playerY > 21) playerY = 21; // Stanna ovanför golvet
+                // Collision with platforms (simple floor assumption)
+                e.y = 40; // Keep on floor for simplicity, or add full physics if needed
+            });
         }
 
-        // Rita allt
+        function checkCollisions() {
+            // Coins
+            coins = coins.filter(c => {
+                if (Math.abs(player.x - c.x) < 1 && Math.abs(player.y - c.y) < 1) {
+                    score += 10;
+                    return false;
+                }
+                return true;
+            });
+
+            // Enemies
+            enemies.forEach(e => {
+                if (Math.abs(player.x - e.x) < 1 && Math.abs(player.y - e.y) < 1) {
+                    player.lives--;
+                    player.x = 5;
+                    player.y = 40;
+                    if (player.lives <= 0) gameOver = true;
+                }
+            });
+
+            // Goal
+            if (Math.abs(player.x - goal.x) < 1 && Math.abs(player.y - goal.y) < 1) {
+                alert('You Win! Score: ' + score);
+                resetGame();
+            }
+        }
+
+        function updateScoreBoard() {
+            document.getElementById('scoreBoard').innerText = `Score: ${score} | Lives: ${player.lives}`;
+        }
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawMap();
+            drawCoins();
+            drawEnemies();
             drawPlayer();
+            drawGoal();
         }
 
-        // Spelloop
         function gameLoop() {
-            update();
-            draw();
+            if (!gameOver) {
+                updatePlayer();
+                updateEnemies();
+                checkCollisions();
+                draw();
+                updateScoreBoard();
+            } else {
+                ctx.fillStyle = '#fff';
+                ctx.font = '30px Arial';
+                ctx.fillText('Game Over! Score: ' + score, canvas.width / 2 - 150, canvas.height / 2);
+            }
             requestAnimationFrame(gameLoop);
         }
 
-        // Tangentbordsstyrning
-        document.addEventListener('keydown', (e) => {
-            switch (e.key) {
-                case 'ArrowLeft': dx = -1; dy = 0; break;
-                case 'ArrowRight': dx = 1; dy = 0; break;
-                case 'ArrowUp': dy = -1; dx = 0; break;
-                case 'ArrowDown': dy = 1; dx = 0; break;
-            }
-        });
+        function resetGame() {
+            player.x = 5;
+            player.y = 40;
+            player.lives = 3;
+            score = 0;
+            coins = [{ x: 10, y: 30 }, { x: 25, y: 20 }, { x: 50, y: 35 }];
+            gameOver = false;
+        }
 
-        document.addEventListener('keyup', () => {
-            dx = 0;
-            dy = 0;
-        });
+        // Event listeners
+        document.addEventListener('keydown', e => keys[e.key] = true);
+        document.addEventListener('keyup', e => keys[e.key] = false);
 
         gameLoop();
     </script>
