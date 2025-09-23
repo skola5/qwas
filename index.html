@@ -1,384 +1,88 @@
-```html
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classroom</title>
+    <title>Simple Pixel Game</title>
     <style>
-        /* General styles to mimic Google Classroom */
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fff;
-            color: #3c4043;
-        }
-
-        /* Top navigation bar */
-        .top-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 64px;
-            padding: 0 16px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 22px;
-            font-weight: 500;
-            color: #5f6368;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background-color: #34a853; /* Green for Classroom icon */
-            margin-right: 8px;
-            border-radius: 4px;
-        }
-
-        .nav-icons {
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-icon {
-            margin-left: 16px;
-            font-size: 24px;
-            color: #5f6368;
-            cursor: pointer;
-        }
-
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #ccc; /* Placeholder for profile pic */
-            background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMiA2YzEuNjUgMCAzIDEuMzUgMyAzczEuMzUgMyAzIDNjMCAxLjY1LTEuMzUgMy0zIDMtMS42NSAwLTMtMS4zNS0zLTN6bTAgMTFjMi4yMSAwIDQuMjctLjc5IDUuODctMi4xM2MtLjA5LTEuMzctLjk2LTIuNjItMi4yNy0yLjYyLTUuNjEgMC0xLjUgMS4yNS0zLjc4IDEuNzFjLTEuNTMtLjQ2LTIuOTMtMS43LTMuNzgtMS43LTEuMzEgMC0yLjE4IDEuMjUtMi4yNyAyLjYyQzcuNzMgMTguMjEgOS43OSAxOSAxMiAxOWM0LjQyIDAgOC0zLjU4IDgtOHMtMy41OC04LTgtOEMzLjU4IDQgMCA3LjU4IDAgMTJjMCA0LjQyIDMuNTggOCA4IDh6IiBmaWxsPSIjZmZmIi8+PC9zdmc+'); /* Simple placeholder SVG */
-            background-size: cover;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 64px;
-            left: 0;
-            width: 240px;
-            height: calc(100% - 64px);
-            background-color: #fff;
-            padding: 16px 0;
-            overflow-y: auto;
-        }
-
-        .sidebar-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 24px;
-            font-size: 14px;
-            color: #5f6368;
-            cursor: pointer;
-        }
-
-        .sidebar-item.active {
-            background-color: #e8f0fe;
-            color: #1a73e8;
-            border-left: 4px solid #1a73e8;
-        }
-
-        .sidebar-icon {
-            margin-right: 16px;
-            font-size: 20px;
-        }
-
-        /* Main content */
-        .main-content {
-            margin-left: 240px;
-            margin-top: 64px;
-            padding: 24px;
-        }
-
-        /* Search bar */
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background-color: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            height: 48px;
-            margin-bottom: 24px;
-            padding: 0 16px;
-        }
-
-        .search-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 16px;
-        }
-
-        .search-icon {
-            color: #5f6368;
-            margin-left: 8px;
-        }
-
-        /* Class cards grid */
-        .classes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
-        }
-
-        .class-card {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            position: relative;
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .class-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header {
-            padding: 16px;
-            color: #fff;
-            height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .card-code {
-            font-size: 12px;
-        }
-
-        .card-teacher {
-            font-size: 14px;
-        }
-
-        .grade-circle {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        /* Specific styles for each card */
-        .card-idrott {
-            background-color: #4285f4; /* Placeholder blue background */
-            /* For exact, you'd need base64 image or external link */
-        }
-
-        .card-matematik {
-            background-color: #673ab7; /* Purple */
-        }
-
-        .card-engelska {
-            background-color: #fbbc04; /* Yellow */
-        }
-
-        .card-samhalls {
-            background-color: #009688; /* Teal */
-        }
-
-        .card-automation {
-            background-color: #607d8b; /* Gray */
-        }
-
-        .card-elektronik {
-            background-color: #2196f3; /* Blue */
-        }
-
-        .grade-b { background-color: #34a853; } /* Green */
-        .grade-a { background-color: #a52a2a; } /* Brown */
-        .grade-c { background-color: #00bcd4; } /* Teal */
-
-        .teacher-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #ccc;
-            margin: 16px;
-            /* Use data URI for placeholders */
-        }
-
-        /* Bottom URL placeholder */
-        .bottom-url {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            padding: 8px;
-            font-size: 12px;
-            color: #5f6368;
-        }
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; }
+        canvas { border: 1px solid #fff; image-rendering: pixelated; }
     </style>
 </head>
 <body>
-    <!-- Top navigation -->
-    <div class="top-nav">
-        <div class="logo">
-            <div class="logo-icon"></div>
-            Classroom
-        </div>
-        <div class="nav-icons">
-            <div class="nav-icon">+</div>
-            <div class="nav-icon">⋮</div>
-            <div class="profile-pic"></div>
-        </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-item active">
-            <span class="sidebar-icon">🏠</span>
-            Startsida
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">📅</span>
-            Kalender
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">🏫</span>
-            Registrerade <span>▾</span>
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">✅</span>
-            Att göra
-        </div>
-        <!-- Additional sidebar items like subjects -->
-        <div class="sidebar-item">
-            <span class="sidebar-icon">M</span>
-            Modernsmål - ungerska
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">S</span>
-            Svenska, Nivå 1
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">H</span>
-            Historia, Nivå 1a
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">I</span>
-            Idrott och hälsa, Nivå 1
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">M</span>
-            Matematik, Nivå 1a
-        </div>
-        <div class="sidebar-item">
-            <span class="sidebar-icon">E</span>
-            Engelska, Nivå 1
-        </div>
-    </div>
-
-    <!-- Main content -->
-    <div class="main-content">
-        <!-- Search bar -->
-        <div class="search-bar">
-            <input class="search-input" type="text" placeholder="">
-            <span class="search-icon">⋯</span>
-            <span class="search-icon">📷</span>
-            <span class="search-icon">⋯</span>
-        </div>
-
-        <!-- Classes grid -->
-        <div class="classes-grid">
-            <!-- Idrott card -->
-            <div class="class-card card-idrott" onclick="alert('Öppnar klass...');"> <!-- Partial functionality: alert on click -->
-                <div class="card-header">
-                    <div class="card-title">Idrott och hälsa, Nivå 1</div>
-                    <div class="card-code">EE25 IDRO1000X g2-Vi</div>
-                    <div class="card-teacher">Björn Ragvald Gymnasieskolan Vi...</div>
-                </div>
-                <div class="grade-circle grade-b">B</div>
-            </div>
-
-            <!-- Matematik card -->
-            <div class="class-card card-matematik" onclick="alert('Öppnar klass...');">
-                <div class="card-header">
-                    <div class="card-title">Matematik, Nivå 1a</div>
-                    <div class="card-code">EE25 MATE1A00X g2-Vi</div>
-                    <div class="card-teacher">Adrian Oster Gymnasieskolan Vi...</div>
-                </div>
-                <div class="grade-circle grade-a">A</div>
-            </div>
-
-            <!-- Engelska card -->
-            <div class="class-card card-engelska" onclick="alert('Öppnar klass...');">
-                <div class="card-header">
-                    <div class="card-title">Engelska, Nivå 1</div>
-                    <div class="card-code">EE25 ENGE1000X g2-Vi</div>
-                    <div class="card-teacher">Camilla Tvingsjö Gymnasieskolan...</div>
-                </div>
-                <div class="grade-circle grade-c">C</div>
-            </div>
-
-            <!-- Samhällskunskap card -->
-            <div class="class-card card-samhalls" onclick="alert('Öppnar klass...');">
-                <div class="card-header">
-                    <div class="card-title">Samhällskunskap, Nivå 1</div>
-                    <div class="card-code">EE25 SAMH1A00X g2-Vi</div>
-                    <div class="card-teacher">Thor Sorensen Gymnasieskolan V...</div>
-                </div>
-                <div class="teacher-pic" style="background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMiA2YzEuNjUgMCAzIDEuMzUgMyAzczEuMzUgMyAzIDNjMCAxLjY1LTEuMzUgMy0zIDMtMS42NSAwLTMtMS4zNS0zLTN6bTAgMTFjMi4yMSAwIDQuMjctLjc5IDUuODctMi4xM2MtLjA5LTEuMzctLjk2LTIuNjItMi4yNy0yLjYyLTUuNjEgMC0xLjUgMS4yNS0zLjc4IDEuNzFjLTEuNTMtLjQ2LTIuOTMtMS43LTMuNzgtMS43LTEuMzEgMC0yLjE4IDEuMjUtMi4yNyAyLjYyQzcuNzMgMTguMjEgOS43OSAxOSAxMiAxOWM0LjQyIDAgOC0zLjU4IDgtOHMtMy41OC04LTgtOEMzLjU4IDQgMCA3LjU4IDAgMTJjMCA0LjQyIDMuNTggOCA4IDh6IiBmaWxsPSIjZmZmIi8+PC9zdmc+');"></div>
-            </div>
-
-            <!-- Automationsteknik card -->
-            <div class="class-card card-automation" onclick="alert('Öppnar klass...');">
-                <div class="card-header">
-                    <div class="card-title">Automationsteknik, Nivå 1</div>
-                    <div class="card-code">EE25 AUTF1000X -Vi</div>
-                    <div class="card-teacher">Jens Carlström Gymnasieskolan</div>
-                </div>
-                <div class="teacher-pic" style="background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMiA2YzEuNjUgMCAzIDEuMzUgMyAzczEuMzUgMyAzIDNjMCAxLjY1LTEuMzUgMy0zIDMtMS42NSAwLTMtMS4zNS0zLTN6bTAgMTFjMi4yMSAwIDQuMjctLjc5IDUuODctMi4xM2MtLjA5LTEuMzctLjk2LTIuNjItMi4yNy0yLjYyLTUuNjEgMC0xLjUgMS4yNS0zLjc4IDEuNzFjLTEuNTMtLjQ2LTIuOTMtMS43LTMuNzgtMS43LTEuMzEgMC0yLjE4IDEuMjUtMi4yNyAyLjYyQzcuNzMgMTguMjEgOS43OSAxOSAxMiAxOWM0LjQyIDAgOC0zLjU4IDgtOHMtMy41OC04LTgtOEMzLjU4IDQgMCA3LjU4IDAgMTJjMCA0LjQyIDMuNTggOCA4IDh6IiBmaWxsPSIjZmZmIi8+PC9zdmc+');"></div>
-            </div>
-
-            <!-- Elektronik card -->
-            <div class="class-card card-elektronik" onclick="alert('Öppnar klass...');">
-                <div class="card-header">
-                    <div class="card-title">Elektronik, Nivå 1</div>
-                    <div class="card-code">EE25 ELTE1000X -Vi</div>
-                    <div class="card-teacher">Jens Carlström Gymnasieskolan</div>
-                </div>
-                <div class="teacher-pic" style="background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMiA2YzEuNjUgMCAzIDEuMzUgMyAzczEuMzUgMyAzIDNjMCAxLjY1LTEuMzUgMy0zIDMtMS42NSAwLTMtMS4zNS0zLTN6bTAgMTFjMi4yMSAwIDQuMjctLjc5IDUuODctMi4xM2MtLjA5LTEuMzctLjk2LTIuNjItMi4yNy0yLjYyLTUuNjEgMC0xLjUgMS4yNS0zLjc4IDEuNzFjLTEuNTMtLjQ2LTIuOTMtMS43LTMuNzgtMS43LTEuMzEgMC0yLjE4IDEuMjUtMi4yNyAyLjYyQzcuNzMgMTguMjEgOS43OSAxOSAxMiAxOWM0LjQyIDAgOC0zLjU4IDgtOHMtMy41OC04LTgtOEMzLjU4IDQgMCA3LjU4IDAgMTJjMCA0LjQyIDMuNTggOCA4IDh6IiBmaWxsPSIjZmZmIi8+PC9zdmc+');"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom URL placeholder -->
-    <div class="bottom-url">https://classroom.google.com/u/1/c/MjE2MTU0ODYxNTA</div>
-
+    <canvas id="gameCanvas" width="320" height="240"></canvas>
     <script>
-        // Partial functionality: console log on page load
-        console.log('Sidan laddad. Delvis funktionalitet: Klick på kort visar alert.');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const pixelSize = 10; // Storlek på varje "pixel"
+        let playerX = 16; // Startposition (i pixel-enheter)
+        let playerY = 12;
+        let dx = 0; // Rörelseriktning
+        let dy = 0;
+
+        // Rita spelaren som en röd kvadrat
+        function drawPlayer() {
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(playerX * pixelSize, playerY * pixelSize, pixelSize, pixelSize);
+        }
+
+        // Rita en enkel bana med väggar
+        function drawMap() {
+            ctx.fillStyle = '#00ff00';
+            // Golvet
+            for (let i = 0; i < 32; i++) {
+                ctx.fillRect(i * pixelSize, 23 * pixelSize, pixelSize, pixelSize);
+            }
+            // Väggar
+            ctx.fillStyle = '#0000ff';
+            ctx.fillRect(0, 0, canvas.width, pixelSize); // Topp
+            ctx.fillRect(0, canvas.height - pixelSize, canvas.width, pixelSize); // Botten
+            ctx.fillRect(0, 0, pixelSize, canvas.height); // Vänster
+            ctx.fillRect(canvas.width - pixelSize, 0, pixelSize, canvas.height); // Höger
+        }
+
+        // Uppdatera spel
+        function update() {
+            playerX += dx;
+            playerY += dy;
+
+            // Kollisionskontroll (håll inom skärmen)
+            if (playerX < 1) playerX = 1;
+            if (playerX > 30) playerX = 30;
+            if (playerY < 1) playerY = 1;
+            if (playerY > 21) playerY = 21; // Stanna ovanför golvet
+        }
+
+        // Rita allt
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMap();
+            drawPlayer();
+        }
+
+        // Spelloop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Tangentbordsstyrning
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowLeft': dx = -1; dy = 0; break;
+                case 'ArrowRight': dx = 1; dy = 0; break;
+                case 'ArrowUp': dy = -1; dx = 0; break;
+                case 'ArrowDown': dy = 1; dx = 0; break;
+            }
+        });
+
+        document.addEventListener('keyup', () => {
+            dx = 0;
+            dy = 0;
+        });
+
+        gameLoop();
     </script>
 </body>
 </html>
-```
