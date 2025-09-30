@@ -1,817 +1,123 @@
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="An advanced hub for exploring audio echoes with tons of interactive demos, high-tech features, programming tools, random fun elements, and more.">
-    <meta name="keywords" content="audio echoes, sound effects, Web Audio API, programming audio, interactive demos, random facts, quizzes">
-    <title>Echoes Hub: Ultimate Interactive Audio Echo Exploration</title>
+    <title>Allabrén Skämt</title>
     <style>
-        :root {
-            --bg-color: #0a0a0a;
-            --text-color: #e0e0e0;
-            --accent-color: #00ffcc;
-            --secondary-color: #1a1a1a;
-            --highlight-color: #ff00aa;
-        }
-        body.light-mode {
-            --bg-color: #f0f0f0;
-            --text-color: #101010;
-            --accent-color: #009977;
-            --secondary-color: #e0e0e0;
-            --highlight-color: #cc0088;
-        }
         body {
-            margin: 0;
-            font-family: 'Courier New', monospace;
-            background: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            transition: background 0.3s, color 0.3s;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
         }
-        header {
-            width: 100%;
-            background: var(--secondary-color);
-            padding: 20px;
+        h1 {
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            color: #ff4500;
         }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap; /* Wrap nav items on small screens */
-        }
-        nav a {
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
-        }
-        nav a:hover {
-            color: var(--accent-color);
-        }
-        #hero {
-            background: linear-gradient(to bottom, var(--secondary-color), var(--bg-color));
-            text-align: center;
-            padding: 100px 20px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-        section {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 10px;
-            background: var(--secondary-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        #demoContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        #audioControls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            width: 100%;
-            max-width: 800px;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 5px;
-        }
-        input[type="range"] {
-            width: 100%;
-        }
-        button {
-            padding: 10px 20px;
-            background: var(--accent-color);
-            color: var(--bg-color);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: var(--highlight-color);
-        }
-        #waveform {
-            width: 100%;
-            max-width: 800px;
-            height: 200px;
-            background: #000;
-            border: 1px solid var(--text-color);
-        }
-        #spectrum {
-            width: 100%;
-            max-width: 800px;
-            height: 200px;
-            background: #000;
-            border: 1px solid var(--text-color);
-            margin-top: 20px;
-        }
-        pre {
-            background: #000;
-            color: #0f0;
+        .joke {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            max-width: 100%;
-        }
-        #codeEditor {
-            width: 100%;
-            height: 300px;
-            background: #000;
-            color: #0f0;
-            font-family: monospace;
-            border: 1px solid var(--text-color);
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        #blog article {
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--text-color);
-            padding-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        input, textarea {
-            padding: 10px;
-            border: 1px solid var(--text-color);
-            border-radius: 5px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        #themeToggle, #soundToggle, #fullscreenBtn, #randomColorBtn, #particleToggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px;
-            background: var(--secondary-color);
-            border: none;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        #soundToggle { right: 120px; }
-        #fullscreenBtn { right: 220px; }
-        #randomColorBtn { right: 320px; }
-        #particleToggle { right: 420px; }
-        #cookieConsent {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            text-align: center;
-            display: none;
-        }
-        #searchBar {
-            max-width: 400px;
-            margin: 20px auto;
-            width: 100%;
-        }
-        #modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--secondary-color);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            z-index: 2000;
-            max-width: 80%;
-            box-sizing: border-box;
-        }
-        #closeModal {
-            float: right;
-            cursor: pointer;
-        }
-        .share-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .share-btn {
-            padding: 10px 20px;
-            background: var(--accent-color);
-            color: var(--bg-color);
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        footer {
-            width: 100%;
-            background: var(--secondary-color);
-            padding: 20px;
-            text-align: center;
-            margin-top: auto;
-        }
-        #randomFacts {
-            text-align: center;
-        }
-        #quiz {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .quiz-question {
             margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        #quizResult {
-            font-weight: bold;
+        .joke h2 {
+            color: #d32f2f;
+            margin-top: 0;
         }
-        #synthContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        #particleCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.5;
-        }
-        #echoCalculator {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        #visualEffects {
-            text-align: center;
-        }
-        .glow {
-            animation: glow 1.5s infinite alternate;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 5px var(--accent-color); }
-            to { text-shadow: 0 0 20px var(--accent-color); }
-        }
-        @media (max-width: 768px) {
-            nav ul { flex-direction: column; gap: 10px; }
-            section { padding: 10px; }
-            #audioControls { grid-template-columns: 1fr; }
+        .joke p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <canvas id="particleCanvas" width="800" height="600"></canvas> <!-- New: Background particles -->
-    <header>
-        <h1>Echoes Hub: Ultimate Interactive Audio Echo Exploration</h1>
-        <nav>
-            <ul>
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#demo">Interactive Demo</a></li>
-                <li><a href="#synth">Sound Synthesizer</a></li>
-                <li><a href="#tutorials">Programming Tutorials</a></li>
-                <li><a href="#quiz">Echo Quiz</a></li>
-                <li><a href="#randomFacts">Random Facts</a></li>
-                <li><a href="#calculator">Echo Calculator</a></li> <!-- New section -->
-                <li><a href="#visuals">Visual Effects</a></li> <!-- New section -->
-                <li><a href="#statue">Big Statue</a></li> <!-- New section for the statue -->
-                <li><a href="#blog">Blog</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#about">About</a></li>
-            </ul>
-        </nav>
-    </header>
+    <h1>Allabrén Skämt</h1>
+    <p>Välkommen till sidan med roliga Allabrén-skämt! Här är en samling av knasiga historier om Sixten som alltid verkar bränna sig. 🔥😂</p>
 
-    <section id="hero">
-        <h2 class="glow">Explore Echoes with Tons of Features!</h2> <!-- Added glow animation -->
-        <p>Dive deep into audio echoes with advanced interactions, synthesizers, quizzes, random facts, and more high-tech fun. No horizontal scrolling here!</p>
-        <button onclick="document.getElementById('demo').scrollIntoView({behavior: 'smooth'})">Try the Demo</button>
-    </section>
-
-    <div id="searchBar">
-        <input type="text" id="siteSearch" placeholder="Search site..." oninput="searchSite()">
-        <div id="searchResults"></div>
+    <div class="joke">
+        <h2>Vintervarianten</h2>
+        <p>Sixten trodde man kunde basta i en snödriva.</p>
+        <p>När han kom ut kallade alla honom för Allabrén ändå. ❄️🔥</p>
     </div>
 
-    <section id="demo">
-        <h2>Interactive Echo Simulator</h2>
-        <p>Adjust parameters, play generated sounds, record voice, and visualize waveforms in real-time!</p>
-        <div id="demoContainer">
-            <canvas id="waveform" width="800" height="200" aria-label="Audio Waveform Visualizer"></canvas>
-            <canvas id="spectrum" width="800" height="200" aria-label="Audio Spectrum Analyzer"></canvas> <!-- New: Spectrum visualizer -->
-            <div id="audioControls">
-                <div class="control-group">
-                    <label for="delay">Delay (ms): <span id="delayValue">500</span></label>
-                    <input type="range" id="delay" min="50" max="2000" value="500">
-                </div>
-                <div class="control-group">
-                    <label for="feedback">Feedback (%): <span id="feedbackValue">50</span></label>
-                    <input type="range" id="feedback" min="0" max="100" value="50">
-                </div>
-                <div class="control-group">
-                    <label for="wet">Wet Mix (%): <span id="wetValue">50</span></label>
-                    <input type="range" id="wet" min="0" max="100" value="50">
-                </div>
-                <div class="control-group">
-                    <label for="filterFreq">Lowpass Filter (Hz): <span id="filterFreqValue">2000</span></label> <!-- New control -->
-                    <input type="range" id="filterFreq" min="20" max="20000" value="2000">
-                </div>
-                <button id="playSample">Play Sample Tone</button>
-                <button id="playRandom">Play Random Sound</button>
-                <button id="recordVoice">Record Voice (5s)</button>
-                <button id="stopRecord">Stop Recording</button>
-                <button id="applyEcho">Play with Echo</button>
-                <button id="saveSettings">Save Settings</button>
-                <button id="loadSettings">Load Settings</button>
-                <button id="exportAudio">Export Audio</button> <!-- New feature -->
-            </div>
-        </div>
-        <div class="share-buttons">
-            <a href="#" class="share-btn" onclick="shareDemo('twitter')">Share on X</a>
-            <a href="#" class="share-btn" onclick="shareDemo('facebook')">Share on Facebook</a>
-            <a href="#" class="share-btn" onclick="shareDemo('link')">Copy Link</a>
-        </div>
-    </section>
-
-    <section id="synth">
-        <h2>Sound Synthesizer with Echo</h2>
-        <p>Create custom tones and apply echoes!</p>
-        <div id="synthContainer">
-            <label for="freq">Frequency (Hz): <span id="freqValue">440</span></label>
-            <input type="range" id="freq" min="20" max="2000" value="440">
-            <label for="waveType">Wave Type:</label>
-            <select id="waveType">
-                <option value="sine">Sine</option>
-                <option value="square">Square</option>
-                <option value="sawtooth">Sawtooth</option>
-                <option value="triangle">Triangle</option>
-            </select>
-            <label for="duration">Duration (s): <span id="durationValue">2</span></label> <!-- New control -->
-            <input type="range" id="duration" min="1" max="10" value="2">
-            <button id="playSynth">Play Synth</button>
-        </div>
-    </section>
-
-    <section id="tutorials">
-        <h2>Programming Tutorials & Features</h2>
-        <p>More examples and an enhanced code editor with export!</p>
-        <h3>JavaScript (Web Audio API)</h3>
-        <pre><code>// Example: Simple Echo Effect
-const audioCtx = new AudioContext();
-const delayNode = audioCtx.createDelay(2);
-const feedback = audioCtx.createGain();
-feedback.gain.value = 0.5;
-delayNode.connect(feedback);
-feedback.connect(delayNode);
-// Connect to source and destination</code></pre>
-        <h3>Rust (Simple Delay)</h3>
-        <pre><code>fn apply_echo(input: &Vec&lt;f32&gt;, delay: usize, feedback: f32) -> Vec&lt;f32&gt; {
-    let mut output = input.clone();
-    for i in delay..input.len() {
-        output[i] += feedback * output[i - delay];
-    }
-    output
-}</code></pre>
-        <h3>Go (Echo Simulation)</h3> <!-- New example -->
-        <pre><code>func applyEcho(input []float32, delay int, feedback float32) []float32 {
-    output := make([]float32, len(input))
-    copy(output, input)
-    for i := delay; i < len(input); i++ {
-        output[i] += feedback * output[i - delay]
-    }
-    return output
-}</code></pre>
-        <h3>Interactive Code Editor (JS)</h3>
-        <textarea id="codeEditor">// Write JS code here
-console.log('Hello Echoes!');</textarea>
-        <button onclick="runUserCode()">Run Code</button>
-        <button onclick="exportCode()">Export Code</button>
-        <button onclick="clearEditor()">Clear Editor</button> <!-- New button -->
-        <div id="codeOutput"></div>
-    </section>
-
-    <section id="quiz">
-        <h2>Echo Knowledge Quiz</h2>
-        <p>Test your knowledge with this random quiz!</p>
-        <div id="quizForm">
-            <div class="quiz-question">
-                <p>1. What causes an echo?</p>
-                <label><input type="radio" name="q1" value="a"> Sound reflection</label><br>
-                <label><input type="radio" name="q1" value="b"> Sound absorption</label><br>
-                <label><input type="radio" name="q1" value="c"> Light waves</label>
-            </div>
-            <div class="quiz-question">
-                <p>2. In digital audio, echo is created using?</p>
-                <label><input type="radio" name="q2" value="a"> Delay and feedback</label><br>
-                <label><input type="radio" name="q2" value="b"> Compression</label><br>
-                <label><input type="radio" name="q2" value="c"> Equalization</label>
-            </div>
-            <div class="quiz-question">
-                <p>3. What is the speed of sound in air?</p> <!-- New question -->
-                <label><input type="radio" name="q3" value="a"> 343 m/s</label><br>
-                <label><input type="radio" name="q3" value="b"> 1000 m/s</label><br>
-                <label><input type="radio" name="q3" value="c"> 3e8 m/s</label>
-            </div>
-            <button onclick="submitQuiz()">Submit Quiz</button>
-        </div>
-        <div id="quizResult"></div>
-    </section>
-
-    <section id="randomFacts">
-        <h2>Random Echo Facts</h2>
-        <p>Click to get a random fact!</p>
-        <button onclick="showRandomFact()">Get Random Fact</button>
-        <p id="factDisplay"></p>
-        <h3>Random Stuff Section</h3>
-        <p>Here's some random fun: A button to change page colors randomly!</p>
-        <button id="randomColorBtn" onclick="randomizeColors()">Randomize Colors</button>
-        <p>And a random number generator: <span id="randomNum"></span></p>
-        <button onclick="generateRandomNum()">Generate Random Number</button>
-        <p>Random Echo Joke: <span id="randomJoke"></span></p> <!-- New -->
-        <button onclick="generateRandomJoke()">Get Random Joke</button>
-    </section>
-
-    <section id="calculator"> <!-- New section: Echo Calculator -->
-        <h2>Echo Delay Calculator</h2>
-        <p>Calculate echo delay based on distance and speed of sound.</p>
-        <div id="echoCalculator">
-            <label for="distance">Distance to Surface (m):</label>
-            <input type="number" id="distance" value="100">
-            <label for="speed">Speed of Sound (m/s):</label>
-            <input type="number" id="speed" value="343">
-            <button onclick="calculateEcho()">Calculate</button>
-            <p id="calcResult"></p>
-        </div>
-    </section>
-
-    <section id="visuals"> <!-- New section: Visual Effects -->
-        <h2>Visual Effects Gallery</h2>
-        <p>Enjoy some echo-inspired visual effects!</p>
-        <div id="visualEffects">
-            <button onclick="triggerRipple()">Trigger Ripple Effect</button>
-            <canvas id="rippleCanvas" width="400" height="200" style="border:1px solid var(--text-color); margin-top:20px;"></canvas>
-            <p>Or toggle background particles:</p>
-            <button id="particleToggle" onclick="toggleParticles()">Particles: Off</button>
-        </div>
-    </section>
-
-    <section id="statue"> <!-- New section for the statue -->
-        <h2>Big Statue with Greetings, Slippery Slopes, Potatoes, and Fur Effects</h2>
-        <p>A surreal massive statue carved from stone, featuring a wise bearded figure greeting visitors with inscribed messages of welcome. The base is surrounded by slippery slopes leading to a pile of giant potato sculptures, symbolizing abundance. The statue is adorned with intricate fur-like textures on its robe, giving it a soft, animalistic effect amidst a mountainous backdrop at sunset.</p>
-        <img src="https://i.imgur.com/example-statue.jpg" alt="Big statue with greetings, slippery slopes, potatoes, and fur effects" style="max-width: 100%; height: auto;">
-    </section>
-
-    <section id="blog">
-        <h2>Blog Posts on Echoes</h2>
-        <article>
-            <h3>The Science of Echoes in Digital Audio</h3>
-            <p>Explore how delays and feedback create realistic echoes using DSP techniques.</p>
-            <small>Posted on September 23, 2025</small>
-        </article>
-        <article>
-            <h3>Building Echo Effects in Web Apps</h3>
-            <p>Tutorial on using Web Audio API for high-tech interactive sound processing.</p>
-            <small>Posted on September 15, 2025</small>
-        </article>
-        <article>
-            <h3>Advanced Programming: Convolutional Reverb for Echoes</h3>
-            <p>Dive into impulse responses for simulating real-world echoes.</p>
-            <small>Posted on September 1, 2025</small>
-        </article>
-    </section>
-
-    <section id="contact">
-        <h2>Contact Us</h2>
-        <form id="contactForm" onsubmit="submitContact(event)">
-            <label for="name">Name:</label>
-            <input type="text" id="name" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" required>
-            <label for="message">Message:</label>
-            <textarea id="message" required></textarea>
-            <button type="submit">Send</button>
-        </form>
-        <div id="formResponse"></div>
-    </section>
-
-    <section id="about">
-        <h2>About Echoes Hub</h2>
-        <p>This high-tech platform explores audio echoes with interactive tools, real-time processing, code editors, and educational content. Built with Web Audio API, canvas visualization, and pure JS for dynamic experiences.</p>
-    </section>
-
-    <footer>
-        <p>&copy; 2025 Echoes Hub. All rights reserved.</p>
-        <p><a href="#top" style="color: var(--text-color);">Back to Top</a> | <a href="privacy.html" style="color: var(--text-color);">Privacy Policy</a> | <a href="terms.html" style="color: var(--text-color);">Terms of Service</a></p>
-    </footer>
-
-    <button id="themeToggle" onclick="toggleTheme()">Toggle Theme</button>
-    <button id="soundToggle" onclick="toggleSound()">Sound: On</button>
-    <button id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
-
-    <div id="cookieConsent">
-        <p>We use cookies for better experience. <button onclick="acceptCookies()">Accept</button> <button onclick="declineCookies()">Decline</button></p>
+    <div class="joke">
+        <h2>Gamingvarianten</h2>
+        <p>Sixten spelade Minecraft utan armor och gick in i lavan.</p>
+        <p>Hans nya gamertag blev Allabrén. 🎮🌋</p>
     </div>
 
-    <div id="modal">
-        <span id="closeModal" onclick="closeModal()">&times;</span>
-        <h2>Modal Title</h2>
-        <p id="modalContent">Modal content here.</p>
+    <div class="joke">
+        <h2>Jobbvarianten</h2>
+        <p>Sixten fick praktik på pizzerian.</p>
+        <p>Efter en timme i ugnen stod det på kvittot: ”Bakad av Allabrén.” 🍕🔥</p>
     </div>
 
-    <script>
-        // Audio setup (same as before)
-        let audioCtx = new AudioContext();
-        let delayNode = audioCtx.createDelay(2);
-        let feedbackNode = audioCtx.createGain();
-        let wetNode = audioCtx.createGain();
-        let dryNode = audioCtx.createGain();
-        let sourceNode;
-        let analyser = audioCtx.createAnalyser();
-        let recorder;
-        let recordedChunks = [];
-        let soundEnabled = true;
-        let filterNode = audioCtx.createBiquadFilter(); // New: Lowpass filter
-        filterNode.type = 'lowpass';
-        filterNode.frequency.value = 2000;
-        filterNode.connect(audioCtx.destination);
+    <div class="joke">
+        <h2>Sportvarianten</h2>
+        <p>Sixten glömde solkräm på fotbollscupen.</p>
+        <p>Efter finalen kallade alla honom för Allabrén United. ⚽🔥</p>
+    </div>
 
-        delayNode.delayTime.value = 0.5;
-        feedbackNode.gain.value = 0.5;
-        wetNode.gain.value = 0.5;
-        dryNode.gain.value = 0.5;
-        feedbackNode.connect(delayNode);
-        delayNode.connect(feedbackNode);
-        delayNode.connect(wetNode);
-        wetNode.connect(filterNode); // Connect to filter
-        dryNode.connect(filterNode);
-        analyser.connect(filterNode);
+    <div class="joke">
+        <h2>Campingvarianten</h2>
+        <p>Sixten skulle tända grillen med bensin.</p>
+        <p>Nu heter han bara Allabrén på campingen. 🏕️🔥</p>
+    </div>
 
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        const freqData = new Uint8Array(bufferLength);
+    <div class="joke">
+        <h2>Musikvarianten</h2>
+        <p>Sixten skrev en låt om sin semester i solen.</p>
+        <p>Hiten hette: ”Allabrén, all night long”. 🎶☀️</p>
+    </div>
 
-        const waveformCanvas = document.getElementById('waveform');
-        const waveformCtx = waveformCanvas.getContext('2d');
-        const spectrumCanvas = document.getElementById('spectrum');
-        const spectrumCtx = spectrumCanvas.getContext('2d');
+    <div class="joke">
+        <h2>Grillvarianten</h2>
+        <p>Sixten satte sig på grillen för att vila benen.</p>
+        <p>Efteråt kallade kompisarna honom bara för Allabrén. 🔥🍗</p>
+    </div>
 
-        function drawWaveform() {
-            requestAnimationFrame(drawWaveform);
-            analyser.getByteTimeDomainData(dataArray);
-            waveformCtx.fillStyle = '#000';
-            waveformCtx.fillRect(0, 0, waveformCanvas.width, waveformCanvas.height);
-            waveformCtx.lineWidth = 2;
-            waveformCtx.strokeStyle = 'rgb(0, 255, 204)';
-            waveformCtx.beginPath();
-            const sliceWidth = waveformCanvas.width / bufferLength;
-            let x = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                const v = dataArray[i] / 128.0;
-                const y = v * (waveformCanvas.height / 2);
-                if (i === 0) waveformCtx.moveTo(x, y);
-                else waveformCtx.lineTo(x, y);
-                x += sliceWidth;
-            }
-            waveformCtx.lineTo(waveformCanvas.width, waveformCanvas.height / 2);
-            waveformCtx.stroke();
+    <div class="joke">
+        <h2>Ordvits-varianten</h2>
+        <p>Sixten gick på solarium i tre timmar.</p>
+        <p>När han kom ut sa personalen:</p>
+        <p>– Du är inte Sixten längre… du är Allabrén. 🌞</p>
+    </div>
 
-            // Draw spectrum
-            analyser.getByteFrequencyData(freqData);
-            spectrumCtx.fillStyle = '#000';
-            spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
-            const barWidth = (spectrumCanvas.width / bufferLength) * 2.5;
-            x = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                const barHeight = freqData[i];
-                spectrumCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
-                spectrumCtx.fillRect(x, spectrumCanvas.height - barHeight / 2, barWidth, barHeight / 2);
-                x += barWidth + 1;
-            }
-        }
-        drawWaveform();
+    <div class="joke">
+        <h2>Kort och knasig</h2>
+        <p>Sixten hoppade ner i vulkanen.</p>
+        <p>Nu kallar man honom bara för Allabrén. 🌋🔥</p>
+    </div>
 
-        // Sliders update (existing)
-        document.getElementById('delay').addEventListener('input', e => {
-            delayNode.delayTime.value = e.target.value / 1000;
-            document.getElementById('delayValue').textContent = e.target.value;
-        });
-        document.getElementById('feedback').addEventListener('input', e => {
-            feedbackNode.gain.value = e.target.value / 100;
-            document.getElementById('feedbackValue').textContent = e.target.value;
-        });
-        document.getElementById('wet').addEventListener('input', e => {
-            wetNode.gain.value = e.target.value / 100;
-            dryNode.gain.value = 1 - (e.target.value / 100);
-            document.getElementById('wetValue').textContent = e.target.value;
-        });
-        document.getElementById('filterFreq').addEventListener('input', e => { // New slider
-            filterNode.frequency.value = e.target.value;
-            document.getElementById('filterFreqValue').textContent = e.target.value;
-        });
+    <div class="joke">
+        <h2>Skolskämtet</h2>
+        <p>Läraren frågade:</p>
+        <p>– Sixten, varför är du alltid så röd i ansiktet?</p>
+        <p>– Jag heter inte Sixten längre… jag heter Allabrén. 📚😂</p>
+    </div>
 
-        // Play sample, random, record, apply (existing)
+    <div class="joke">
+        <h2>Teknikvarianten</h2>
+        <p>Sixten skulle ladda mobilen i fel uttag.</p>
+        <p>Resultatet? Han blev Allabrén. 🔌🔥</p>
+    </div>
 
-        // Export audio (new)
-        let audioRecorder;
-        document.getElementById('exportAudio').addEventListener('click', () => {
-            if (soundEnabled) {
-                audioRecorder = new MediaRecorder(audioCtx.destination.stream);
-                audioRecorder.start();
-                setTimeout(() => {
-                    audioRecorder.stop();
-                }, 5000); // Record 5s
-                audioRecorder.ondataavailable = e => {
-                    const url = URL.createObjectURL(e.data);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'echo_audio.webm';
-                    a.click();
-                };
-            }
-        });
+    <div class="joke">
+        <h2>Matvarianten</h2>
+        <p>Sixten trodde ugnen var avstängd när han skulle hämta pizzan.</p>
+        <p>Nu är han mer känd som Allabrén. 🍕🔥</p>
+    </div>
 
-        // Synth duration (new)
-        document.getElementById('duration').addEventListener('input', e => document.getElementById('durationValue').textContent = e.target.value);
-        document.getElementById('playSynth').addEventListener('click', () => {
-            if (soundEnabled) {
-                sourceNode = audioCtx.createOscillator();
-                sourceNode.type = document.getElementById('waveType').value;
-                sourceNode.frequency.value = document.getElementById('freq').value;
-                sourceNode.connect(dryNode);
-                sourceNode.connect(delayNode);
-                sourceNode.connect(analyser);
-                sourceNode.start();
-                setTimeout(() => sourceNode.stop(), document.getElementById('duration').value * 1000);
-            }
-        });
+    <div class="joke">
+        <h2>Filmvarianten</h2>
+        <p>Sixten ville vara stuntman i en actionfilm.</p>
+        <p>Efter första explosionen stod det i eftertexterna:</p>
+        <p>”Medverkade: Allabrén”. 🎬💥</p>
+    </div>
 
-        // Code editor clear (new)
-        function clearEditor() {
-            document.getElementById('codeEditor').value = '';
-            document.getElementById('codeOutput').innerText = '';
-        }
-
-        // Quiz updated with new question
-        function submitQuiz() {
-            let score = 0;
-            if (document.querySelector('input[name="q1"]:checked')?.value === 'a') score++;
-            if (document.querySelector('input[name="q2"]:checked')?.value === 'a') score++;
-            if (document.querySelector('input[name="q3"]:checked')?.value === 'a') score++;
-            document.getElementById('quizResult').innerText = `You scored ${score}/3!`;
-        }
-
-        // Random facts (existing)
-        const facts = [
-            'Echoes occur when sound waves bounce off surfaces.',
-            'The speed of sound is about 343 m/s in air.',
-            'Bats use echoes for echolocation.',
-            'In music, echo effects are used in reverb plugins.',
-            'The longest echo ever recorded lasted 75 seconds in a mausoleum.',
-            'Echo is also a nymph in Greek mythology who could only repeat words.'
-        ];
-        function showRandomFact() {
-            const fact = facts[Math.floor(Math.random() * facts.length)];
-            document.getElementById('factDisplay').innerText = fact;
-        }
-
-        // Random joke (new)
-        const jokes = [
-            'Why did the echo go to school? To improve its reflection!',
-            'What did the echo say to the sound? "You sound familiar!"',
-            'Echoes are just sounds that are late to the party.'
-        ];
-        function generateRandomJoke() {
-            const joke = jokes[Math.floor(Math.random() * jokes.length)];
-            document.getElementById('randomJoke').innerText = joke;
-        }
-
-        // Random stuff (existing)
-
-        // Echo calculator (new)
-        function calculateEcho() {
-            const distance = parseFloat(document.getElementById('distance').value);
-            const speed = parseFloat(document.getElementById('speed').value);
-            const delay = (2 * distance) / speed * 1000; // Round trip in ms
-            document.getElementById('calcResult').innerText = `Echo Delay: ${delay.toFixed(2)} ms`;
-        }
-
-        // Visual effects: Ripple (new)
-        const rippleCanvas = document.getElementById('rippleCanvas');
-        const rippleCtx = rippleCanvas.getContext('2d');
-        let rippleRadius = 0;
-        function drawRipple() {
-            rippleCtx.clearRect(0, 0, rippleCanvas.width, rippleCanvas.height);
-            rippleCtx.beginPath();
-            rippleCtx.arc(200, 100, rippleRadius, 0, 2 * Math.PI);
-            rippleCtx.strokeStyle = var(--accent-color);
-            rippleCtx.stroke();
-            if (rippleRadius < 100) {
-                rippleRadius += 2;
-                requestAnimationFrame(drawRipple);
-            } else {
-                rippleRadius = 0;
-            }
-        }
-        function triggerRipple() {
-            rippleRadius = 0;
-            drawRipple();
-        }
-
-        // Background particles (new)
-        const particleCanvas = document.getElementById('particleCanvas');
-        const particleCtx = particleCanvas.getContext('2d');
-        particleCanvas.width = window.innerWidth;
-        particleCanvas.height = window.innerHeight;
-        let particles = [];
-        let particlesEnabled = false;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * particleCanvas.width;
-                this.y = Math.random() * particleCanvas.height;
-                this.size = Math.random() * 5 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x > particleCanvas.width || this.x < 0) this.speedX = -this.speedX;
-                if (this.y > particleCanvas.height || this.y < 0) this.speedY = -this.speedY;
-            }
-            draw() {
-                particleCtx.fillStyle = var(--accent-color);
-                particleCtx.beginPath();
-                particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                particleCtx.fill();
-            }
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            if (particlesEnabled) {
-                particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-                requestAnimationFrame(animateParticles);
-            }
-        }
-
-        function toggleParticles() {
-            particlesEnabled = !particlesEnabled;
-            document.getElementById('particleToggle').innerText = `Particles: ${particlesEnabled ? 'On' : 'Off'}`;
-            if (particlesEnabled) {
-                initParticles();
-                animateParticles();
-            }
-        }
-
-        window.addEventListener('resize', () => {
-            particleCanvas.width = window.innerWidth;
-            particleCanvas.height = window.innerHeight;
-            initParticles();
-        });
-
-        // Other functions (theme, sound, fullscreen, etc.) remain the same
-
-        setTimeout(() => showModal('Welcome!', 'Now with more visual effects, features like spectrum analyzer, ripple effects, particles, and extended quizzes/tools!'), 2000);
-    </script>
 </body>
 </html>
+```
